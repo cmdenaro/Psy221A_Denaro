@@ -14,7 +14,7 @@ output:
 
 H1: Those who report a history of infidelity (categorical) will report lower relationship satisfaction/commitment (composite).
 
-H2: Willingness to marry without love will be negatively correlated with age.
+H2: Willingness to marry without love will be negatively correlated with age. (PRETTY CONFIDENT THIS WORKED)
 
 
 ## 1. Load the package and data
@@ -23,38 +23,31 @@ H2: Willingness to marry without love will be negatively correlated with age.
 #load the codebook package
 library(codebook)
 
-
 #load data/raw/data_doctored.csv
 raw <- read.csv("data/raw/data_doctored.csv")
 
-#check row and column counts, and inspect the first few rows. Will give number of rows and number of columns. 
-#In this case 117294 participants, 273 variables
+#check row and column counts, inspect the first few rows. Will give number of rows and number of columns. 
 dim(raw)
 head(raw[,c("ResponseId")])
-str(raw) #tells you amount of observations and variables, and also variables and first values
-
+str(raw) #amount of observations and variables, variables & first values
 
 #make data with ID, age, history of infidelity, willingness to marry without love, and relationship satisfaction/commitment prqc 1-6 unchanged
-#Go to codebook to find variable names for this dataset
+#codebook has variable names for this dataset
 data <- raw[,c("ResponseId",
-                         "Age",
-                         "infidelity",
-                         "Love_would_you_marry_1",
-                         "prqc_1",
-                         "prqc_2",
-                         "prqc_3",
-                         "prqc_4",
-                         "prqc_5",
-                         "prqc_6")]
+               "Age",
+               "infidelity",
+               "Relationship_status",
+               "Love_would_you_marry_1",
+               "prqc_1",
+               "prqc_2",
+               "prqc_3",
+               "prqc_4",
+               "prqc_5",
+               "prqc_6")]
 
-#This should now show less variables than before (10) in this case
+#This should now show less variables than before (11) in this case
 dim(data)
 str(data) #now is more trackable, because it only has the columns we need
-
-
-
-
-
 
 ```
 
@@ -104,86 +97,90 @@ table(data$infidelity,useNA="ifany")
 
 
 ```
-## Make composite relationship satisfaction and committment
 
-```{r Relationship satisfaction and committment}
-#make relData for respondents committed and satisfied in relationship
-
-table(data$prqc_1, useNA ="ifany")
-relData <- data[data$prqc_1 %in% c(1,2,3),] #keeps only 1,2,3 as rows
-  #compare before to now by typing dim(data) and compare to dim(relData) (in console)
-
+## Make composite relationship satisfaction and commitment [prqc items 1-6]
+```{r}
+#make relData for respondents currently in a relationship
+#include Dating (1), In a committed relationship (2), and Married (3)
+table(data$Relationship_status, useNA = "ifany")
+relData_try <- data[c(3,4)]
+relData <- data[data$Relationship_status %in% c(1,2,3),]
+nrow(relData)
 
 #define the items to check; all four use response codes 1-7
 #prqc_1-6: 1=Not at all, 7=Extremely
-likert7 <- c("prqc_1","prqc_2","prqc_3","prqc_4","prqc_5", "prqc_6")
-
+likert7 <- c("prqc_1","prqc_2","prqc_3","prqc_4","prqc_5","prqc_6")
 
 #check the summaries and missing responses
 summary(relData[,likert7])
-  #looks good because all max values are 7
-colSums(is.na(relData[,likert7])) #provides number of NAs for each item 
+colSums(is.na(relData[,likert7]))
 
-#inspect the response frequencies for each item #to get an idea of how people responded
-#for each item in likert7
-for(i in likert7) {
+#inspect the response frequencies for each item
+for(i in likert7){
   print(i)
   print(table(relData[,i],useNA="ifany"))
 }
 
-  
-
 #replace any codes outside 1-7 with NA
-for(i in likert7) {
-  relData[,i] <- ifelse(relData[,i] %in% 1:7, relData[,i],NA) #testing whether value in column of real data is it a number from 1:7
+for(i in likert7){
+  relData[,i] <- ifelse(relData[,i] %in% 1:7,relData[,i],NA)
 }
 
-
 ```
-
-## 6. Calculate satisfaction/commitment
-Make a composite score 
-### Some need reverse coding, some need to averaged/summed/weighted --> all details are in the codebook!
-
+## Calculate satisfaction/commitment (new)
 ```{r satisfaction/commitment}
-#group commitment variables (prqc_1, prqc_2, and prqc_3, prqc_4, prqc_5, and prqc_6) #average these values
-#these ask how committed, dedicated, and devoted respondents are
+#group commitment variables (prqc_1:6)
+#these ask how satisfied, committed, dedicated, and devoted respondents are
 #none requires reverse coding
-romVars <- c("prqc_1", "prqc_2", "prqc_3","prqc_4", "prqc_5", "prqc_6") #grouped commitement variables
+satcomVars <- c("prqc_1","prqc_2","prqc_3","prqc_4","prqc_5","prqc_6")
 
 
-#calculate relationship data (reldata)m satisfaction/commitment as the mean of all 6 items
+#calculate satisfaction/commitment as the mean of all three items
 #for NAs, conduct available item mean
-relData$romsatisfaction_commitment <- rowMeans(relData[,romVars], na.rm=TRUE) 
-  #pick only commitment variables and averaging all the values per row 
+relData$satisfaction_commitment <- rowMeans(relData[,satcomVars],na.rm=TRUE)
 
 #check the score
-summary(relData$romsatisfaction_commitment)
+summary(relData$satisfaction_commitment)
 
-#make h1Data with ID, infidelity and prqc
-#store this into a new data set
-h1Data <- data[,c("ResponseId",
-                  "infidelity",
-                  "relData")]
-#HAVING ISSUES HERE
-#make h2Data with ID, age, and willingness to marry without love
-#keep participants with both qoa and commitment present
+#make h1Data with ID, history of infidelity, satisfaction/commitment
+#keep participants with both hist of infidelity and satisfaction/commitment present
 #do not apply the H1 preference filter to this hypothesis
-h1Data <- relData[!is.na(relData$qoa)&!is.na(relData$commitment), 
-                  c("ResponseId", "qoa", "commitement")]
-#need to combine these two
+h1Data <- relData[!is.na(relData$infidelity) & !is.na(relData$satisfaction_commitment),
+                  c("ResponseId","infidelity","satisfaction_commitment")]
 ```
 
-
 HYPOTHESIS 2: Willingness to marry without love will be negatively correlated with age
+```{r check age and willingness to marry}
+#count na: 9754
+sum(is.na(data$Age))
+
+#count blank: 0
+sum(data$Age=="",na.rm=T)
+
+#check that each age is reasonable 18-99
+summary(data$Age)
+
+#count na: 16060
+sum(is.na(data$Love_would_you_marry_1))
+
+#count blank: 0
+sum(data$Love_would_you_marry_1=="",na.rm=T)
+
+#check that each age is reasonable 18-99
+summary(data$Love_would_you_marry_1)
+
+```
+
 ## 5. age & willingness to marry without love
 ```{r hypothesis 2}
 #make h2Data with ID, age, and willingness to marry without love
-#keep participants with both qoa and commitment present
-#do not apply the H1 preference filter to this hypothesis
-h2Data <- data[,c("ResponseId",
+#keep participants with both age and willingness to marry without love present
+
+h2Data <- data[!is.na(data$Age) & !is.na(data$Love_would_you_marry_1),
+                  c("ResponseId",
                   "Age",
                   "Love_would_you_marry_1")]
+
 ```
 
 ## 7. Check the final tables
@@ -195,17 +192,17 @@ dim(h1Data)
 str(h1Data)
 head(h1Data)
 colSums(is.na(h1Data))
-table(h1Data$Sex_birth,useNA="ifany")
-range(h1Data$preference_imp_physat)
+table(h1Data$infidelity,useNA="ifany")
+range(h1Data$satisfaction_commitment)
 sum(duplicated(h1Data$ResponseId))
 
-#repeat the checks for h2Data; both scores should be within 1-7
+#repeat the checks for h2Data; age 18-90, marry without love 0-100
 dim(h2Data)
 str(h2Data)
 head(h2Data)
 colSums(is.na(h2Data))
-range(h2Data$qoa)
-range(h2Data$commitment)
+range(h2Data$Age)
+range(h2Data$Love_would_you_marry_1)
 sum(duplicated(h2Data$ResponseId))
 ```
 
@@ -218,23 +215,21 @@ display the formatted codebooks.
 ```{r variable_labels}
 #add a description to each h1Data column, in column order
 #include the source codes, meaning, and units
-var_label(h2Data) <- c(
+var_label(h1Data) <- c(
   "Unique participant ID (ResponseId)",
-  "Age",
-  "Love_would_you_marry_1")
+  "History of infidelity",
+  "Relationship satisfaction/commitment: mean of available prqc_1-6 responses, each 1=Not at all to 7=Extremely;"
+)
 
 #add a description to each h2Data column, in column order
 #include response anchors and the commitment scoring rule
-var_label(h1Data) <- c(
+var_label(h2Data) <- c(
   "Unique participant ID (ResponseId)",
-  "infidelity",
-  "Relationship satisfaction/commitment: mean of available prqc_4-6 responses, each 1=Not at all to 7=Extremely; need to check reverse coding; at least one valid response required"
-)
-
+  "Age",
+  "Would you marry without love (Love_would_you_marry_1)")
 ```
 
-H1 includes participants with an ID, a valid sex-at-birth category, and six
-allocations between 0 and 30 that total 30. Factor level numbers in the
+H1 includes participants with an ID, whether they have a history of infidelity, and a composite of their relationship satisfaction and commitment (prqc 1:6) Factor level numbers in the
 generated table are internal R positions, not the original survey codes.
 
 ```{r h1_codebook}
