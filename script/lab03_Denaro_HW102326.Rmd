@@ -14,7 +14,7 @@ output:
 
 H1: Those who report a history of infidelity (categorical) will report lower relationship satisfaction/commitment (composite).
 
-H2: Willingness to marry without love will be negatively correlated with age. (PRETTY CONFIDENT THIS WORKED)
+H2: Willingness to marry without love will be negatively correlated with age.
 
 
 ## 1. Load the package and data
