@@ -36,7 +36,7 @@ str(raw) #tells you amount of observations and variables, and also variables and
 
 #make data with ID, age, history of infidelity, willingness to marry without love, and relationship satisfaction/commitment prqc 1-6 unchanged
 #Go to codebook to find variable names for this dataset
-data <- data_doctored[,c("ResponseId",
+data <- raw[,c("ResponseId",
                          "Age",
                          "infidelity",
                          "Love_would_you_marry_1",
@@ -171,7 +171,7 @@ h1Data <- data[,c("ResponseId",
 #do not apply the H1 preference filter to this hypothesis
 h1Data <- relData[!is.na(relData$qoa)&!is.na(relData$commitment), 
                   c("ResponseId", "qoa", "commitement")]
-need to combine these two
+#need to combine these two
 ```
 
 
