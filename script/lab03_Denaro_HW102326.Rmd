@@ -67,6 +67,12 @@ sum(data$ResponseId=="",na.rm=TRUE)
 sum(duplicated(data$ResponseId))
 
 #All these previous can be found out with: 
+
+###JK: There is a small typo in the ID name here. ###
+# Replace the line below with:
+# summary(data$ResponseId)
+###  End of comment ###
+
 summary(data$Response_Id)
 
 #inspect records with missing or blank IDs. Tells you which one is the NA Participant Id in the order of columns.
@@ -135,6 +141,8 @@ for(i in likert7){
 satcomVars <- c("prqc_1","prqc_2","prqc_3","prqc_4","prqc_5","prqc_6")
 
 
+###JK: Your calculation uses six items, so please change "all three items" below to "available responses across the six items." ###
+
 #calculate satisfaction/commitment as the mean of all three items
 #for NAs, conduct available item mean
 relData$satisfaction_commitment <- rowMeans(relData[,satcomVars],na.rm=TRUE)
@@ -165,6 +173,11 @@ sum(is.na(data$Love_would_you_marry_1))
 
 #count blank: 0
 sum(data$Love_would_you_marry_1=="",na.rm=T)
+
+###JK: This check is for willingness to marry without love, not age. ###
+# Please change the comment below to say that the expected range is 0-100.
+# For the age check earlier, the codebook range is 18-90, not 18-99.
+###  End of comment ###
 
 #check that each age is reasonable 18-99
 summary(data$Love_would_you_marry_1)
@@ -215,6 +228,17 @@ display the formatted codebooks.
 ```{r variable_labels}
 #add a description to each h1Data column, in column order
 #include the source codes, meaning, and units
+###JK: Please make the codebook descriptions a little more specific, following Section 8 of my Lab03 example. ###
+# You can replace the infidelity label below with:
+# "History of sexual or emotional infidelity to a romantic partner: original codes 0=No, 1=Yes; stored as a factor."
+# In the H2 labels, give the age unit and the willingness scale anchors:
+# var_label(h2Data) <- c(
+#   "Unique participant ID (ResponseId)",
+#   "Age in years; questionnaire range 18-90.",
+#   "Willingness to marry or register a partnership with a desirable person one does not love: 0=Definitely would not, 100=Definitely would."
+# )
+###  End of comment ###
+
 var_label(h1Data) <- c(
   "Unique participant ID (ResponseId)",
   "History of infidelity",
@@ -242,6 +266,11 @@ H2 includes participants with an ID, relationship status 1, 2, or 3, and
 valid nonmissing qoa and at least one valid commitment response.
 
 ```{r h2_codebook}
+###JK: Please replace the H2 inclusion description above; it still refers to the example's qoa and commitment variables. ###
+# Your H2 correctly uses age and willingness to marry without love, and it does not restrict participants to relationship statuses 1, 2, and 3.
+# Suggested wording: H2 includes participants with an ID and nonmissing age and willingness-to-marry-without-love responses, regardless of relationship status.
+###  End of comment ###
+
 #generate the h2Data codebook
 compact_codebook(h2Data)
 
