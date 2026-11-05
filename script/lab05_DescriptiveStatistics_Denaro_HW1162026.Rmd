@@ -1,0 +1,141 @@
+---
+title: "PSY221A: Descriptive Statistics"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+###NOTE: only H2 was applicable for the correlation analysis.###
+I completed the steps for H1 satisfaction_commitment composite, but the other variable (infidelity) is categorical, and thus correlation is not appropriate. Not sure if the composite variable still needs normalization in this case. 
+
+## 1. Load the processed data
+
+```{r load}
+# Open the project's .Rproj file before running chunks.
+# Install psych once in the Console if needed: install.packages("psych")
+library(psych)
+
+h1Data <- read.csv("script/data/processed_data/practice_h1.csv")
+h2Data <- read.csv("script/data/processed_data/practice_h2.csv")
+
+```
+
+## 2. Look at the distribution first
+
+```{r histogram}
+# A histogram groups numerical values into intervals (bins).
+# Bar height shows how many observations fall in each interval.
+# Start by looking at the distribution before calculating summary statistics.
+# Add readable labels to the same histogram.
+hist(h1Data$satisfaction_commitment,
+     main = "Distribution of relationship satisfaction & commitment",
+     xlab = "Relationship satisfaction & commitment")
+
+hist(h2Data$Age,
+     main = "Distribution of age",
+     xlab = "Age (18-90")
+
+hist(h2Data$Love_would_you_marry_1,
+     main = "Distribution of willingness to marry without love",
+     xlab = "Willingness to marry without love")
+```
+
+## 3. One statistic at a time
+
+```{r individual_statistics}
+## H1 ##
+#count:0 NA
+sum(is.na(h1Data$satisfaction_commitment))
+
+# Mean: add the scores and divide by the number of observed responses, no NAs to remove: 5.71
+mean(h1Data$satisfaction_commitment, na.rm = F)
+# Median: the middle score after sorting the responses: 6
+median(h1Data$satisfaction_commitment, na.rm = F)
+
+# Table: count how many people are in each category: 31269 no infidelity, 19050 infidelity
+table(h1Data$infidelity, useNA = "ifany")
+
+# Range: return the minimum and maximum, rather than their difference: 1-7 (composite of 1-7 Likert)
+range(h1Data$satisfaction_commitment, na.rm = F)
+
+# IQR: the 75th percentile minus the 25th percentile: 1.5
+IQR(h1Data$satisfaction_commitment, na.rm = F)
+
+## H2 ##
+#count:0 NA for both
+sum(is.na(h2Data$Age))
+sum(is.na(h2Data$Love_would_you_marry_1))
+
+# Mean: add the scores and divide by the number of observed responses, no NAs to remove
+mean(h2Data$Age, na.rm = F) #30.24
+mean(h2Data$Love_would_you_marry_1, na.rm = F) #38.46
+
+# Median: the middle score after sorting the responses
+median(h2Data$Age, na.rm = F) #25
+median(h2Data$Love_would_you_marry_1, na.rm = F) #30
+
+# Range: return the minimum and maximum, rather than their difference: 1-7 (composite of 1-7 Likert)
+range(h2Data$Age, na.rm = F) #18-90
+range(h2Data$Love_would_you_marry_1, na.rm = F) #0-100
+
+# IQR: the 75th percentile minus the 25th percentile: 1.5
+IQR(h2Data$Age, na.rm = F) #15
+IQR(h2Data$Love_would_you_marry_1, na.rm = F) #65
+```
+
+## 4. Standardize a variable
+
+```{r standardize}
+# scale() uses z = (original score - mean) / standard deviation by default.
+# Keep the original commitment scores and store the standardized values separately.
+# scale() returns a matrix; as.numeric() makes a simple numeric column.
+
+h1Data$satisfaction_commitment_z <- as.numeric(scale(h1Data$satisfaction_commitment))
+
+h2Data$Age_z <- as.numeric(scale(h2Data$Age))
+
+h2Data$Love_would_you_marry_1_z <- as.numeric(scale(h2Data$Love_would_you_marry_1))
+
+# Standardized scores have mean approximately 0 and standard deviation 1.
+mean(h1Data$satisfaction_commitment_z, na.rm = T)
+mean(h2Data$Age_z, na.rm = T)
+mean(h2Data$Love_would_you_marry_1_z, na.rm = T)
+
+sd(h1Data$satisfaction_commitment_z, na.rm = T)
+sd(h2Data$Age_z, na.rm = T)
+sd(h2Data$Love_would_you_marry_1_z, na.rm = T)
+
+```
+
+## 5. Covariance and correlation
+
+```{r association}
+# Covariance describes whether two variables tend to move together.
+# Positive: higher values tend to occur together. Negative: higher values tend to accompany lower values.
+# Its size depends on the units and is not restricted to -1 through 1.
+#cov: -40.30
+cov(h2Data$Age, h2Data$Love_would_you_marry_1, use = "complete.obs") #only use when you have data for both
+
+# Pearson correlation expresses a linear association on a -1 to 1 scale.
+#cor: -0.096
+cor(h2Data$Age, h2Data$Love_would_you_marry_1, use = "complete.obs")
+
+# Select numerical variables only; do not include participant IDs or category codes.
+corDataH2 <- h2Data[, c("Age", "Love_would_you_marry_1")]
+
+# A correlation matrix gives the correlation for each pair of columns.
+# The diagonal is 1 because each variable is correlated with itself.
+cor(corDataH2, use = "complete.obs")
+```
+
+## 6. Several statistics at once
+
+```{r combined_summaries}
+# summary() reports minimum, quartiles, median, mean, maximum, and missing counts when present.
+summary(corDataH2)
+
+# psych::describe() reports n, mean, SD, median, minimum, maximum, range width (max minus min), skewness, kurtosis, and other summaries.
+# However it does not report every statistic above: compute IQR, cov(), and cor() separately.
+psych::describe(corDataH2)
+```
+
+#use categorical for table, continuous for cor
