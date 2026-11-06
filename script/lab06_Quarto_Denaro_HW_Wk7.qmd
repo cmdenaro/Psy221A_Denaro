@@ -1,0 +1,99 @@
+---
+title: "Infidelity, Relationship Satisfaction & Commitment, Age, and Marrying without Love"
+author: "Chandlyr Denaro"
+format:
+  html:
+    toc: true
+    code-fold: true
+execute:
+  echo: true
+---
+
+```{r}
+#| label: load-data
+#| include: false
+library(ggplot2)
+library(ggrain)
+
+h1Data <- read.csv("script/data/processed_data/practice_h1.csv")
+h2Data <- read.csv("script/data/processed_data/practice_h2.csv")
+```
+
+## Hypothesis 1
+
+H1: Those who report a history of infidelity (categorical) will report lower relationship satisfaction/commitment (composite).
+
+### Variables and descriptive statistics
+
+- **History of Infidelity (`infidelity`):** A categorical variable with 2 groups: No Infidelity, Infidelity.
+- **Composite of relationship satisfaction and commitment (`satisfaction_commitment`):** Mean of response to 6 questions regarding relationship satisfaction and commitment. Higher values indicate greater combined satisfaction and commitment.
+
+```{r}
+#| label: h1-descriptives
+# Count respondents in each group.
+table(h1Data$infidelity)
+
+# Summarize attractiveness points separately for each group.
+by(h1Data$satisfaction_commitment, h1Data$infidelity, summary)
+```
+
+### Graph
+
+@fig-satisfaction-commitment shows the distribution combined relationship satisfaction and commitment by history of infidelity. The half-violin shows the shape of the distribution, the box summarizes the median and quartiles, and the dots represent individual responses.
+
+```{r}
+#| label: fig-satisfaction-commitment
+#| fig-cap: "Combined relationship satisfaction and commitment, by history of infidelity."
+#| fig-width: 8
+#| fig-height: 5
+
+ggplot(h1Data, aes(x = infidelity, y = satisfaction_commitment,
+                   fill = infidelity)) +
+  geom_rain(alpha = 0.5, point.args = list(alpha = 0.04, size = 0.6)) +
+  labs(x = "History of Infidelity", y = "Mean relatioship satisfaction and commitment") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+
+## Hypothesis 2.
+Willingness to marry without love will be negatively correlated with age.
+
+### Variables and descriptive statistics
+
+- **Age (`Age`):** A single demographic item about the respondents age. Responses range from 18 - 90.
+- **Willingness to be get married without love (`Love_would_you_marry_1`):** A single response item about whether the responded would be willing to get married without being in love. Responses range from 0-100. 0 = Definitely not willing to be married without love, 100 = definitely willing to be married without love.
+
+
+```{r}
+#| label: h2-descriptives
+summary(h2Data[, c("Age", "Love_would_you_marry_1")])
+```
+
+### Graph
+
+@fig-marryForLove shows the relationship between age and willingness to marry without love. Points are jittered to make overlapping responses easier to see; the recorded scores are unchanged. The line summarizes the linear trend.
+
+```{r}
+#| label: fig-marryForLove
+#| fig-cap: "Willingness to marry without love across age."
+#| fig-width: 8
+#| fig-height: 5
+
+ggplot(h2Data, aes(x = Age, y = Love_would_you_marry_1)) +
+  geom_jitter(width = .12, height = .04, alpha = .04, size = .6) +
+  geom_smooth(method = "lm") +
+  labs(x = "Age (18-90)",
+       y = "Willingness to marry without love (0-100)") +
+  theme_minimal()
+```
+
+### Observed trend
+
+```{r}
+#| label: correlation
+r <- cor(h2Data$Age, h2Data$Love_would_you_marry_1, use = "complete.obs")
+round(r, 2)
+```
+
+The correlation was `{r} round(r, 2)`, indicating a weak negative association. Older respondents reported less willingness to marry without love.
