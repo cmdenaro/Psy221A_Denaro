@@ -5,6 +5,7 @@ format:
   html:
     toc: true
     code-fold: true
+    embed-resources: true
 execute:
   echo: true
 ---
@@ -15,8 +16,8 @@ execute:
 library(ggplot2)
 library(ggrain)
 
-h1Data <- read.csv("script/data/processed_data/practice_h1.csv")
-h2Data <- read.csv("script/data/processed_data/practice_h2.csv")
+h1Data <- read.csv("C:/Users/chany/OneDrive/Documents/Psy221A_DesignAndMeasurement/Lab_Wk2/Psy221A_Denaro/script/data/processed_data/practice_h1.csv")
+h2Data <- read.csv("C:/Users/chany/OneDrive/Documents/Psy221A_DesignAndMeasurement/Lab_Wk2/Psy221A_Denaro/script/data/processed_data/practice_h2.csv")
 ```
 
 ## Hypothesis 1
