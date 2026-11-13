@@ -4,6 +4,9 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 ---
+
+###JK: Good work! Nothing to revise :) ###
+
 ###NOTE: only H2 was applicable for the correlation analysis.###
 I completed the steps for H1 satisfaction_commitment composite, but the other variable (infidelity) is categorical, and thus correlation is not appropriate. Not sure if the composite variable still needs normalization in this case. 
 
