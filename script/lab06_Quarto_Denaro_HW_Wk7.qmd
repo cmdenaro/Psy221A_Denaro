@@ -10,6 +10,13 @@ execute:
   echo: true
 ---
 
+###JK: Your Quarto report renders successfully; please finish the GitHub Pages setup. ###
+# I could not open the project website at https://cmdenaro.github.io/Psy221A_Denaro/ on November 19.
+# The rendered homepage is currently in script/docs/index.html. Put it in a docs folder at the top of the repository so the path is docs/index.html.
+# Push that file, then select Settings > Pages > Deploy from a branch > main > /docs > Save.
+###  End of comment ###
+
+
 ```{r}
 #| label: load-data
 #| include: false
